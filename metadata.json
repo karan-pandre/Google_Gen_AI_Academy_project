@@ -1,0 +1,6 @@
+{
+  "name": "JanArogya AI - Hospital Patient Navigator",
+  "description": "Autonomous multimodal public hospital patient navigator featuring multilingual voice triage, prescription & ABHA card vision parsing, smart clinical routing, and real-time OPD queue management.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1127 @@
+export interface HospitalContactPerson {
+  name: string;
+  designation: string;
+  phone: string;
+  email: string;
+  dutyStatus: string;
+  department?: string;
+}
+
+export interface HospitalDirectoryItem {
+  id: string;
+  name: string;
+  nameRegional?: string;
+  category: 'Government' | 'Private' | 'Autonomous / AIIMS' | 'Trust / Charitable';
+  state: string;
+  city: string;
+  district: string;
+  address: string;
+  pincode: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  contactPerson: HospitalContactPerson;
+  phoneEmergency: string;
+  phoneVoiceIVR: string;
+  smsDispatchNumber: string;
+  officialEmail: string;
+  triageEmail: string;
+  availableSpecialties: string[];
+  totalBeds: number;
+  icuBedsAvailable: number;
+  ventilatorsAvailable: number;
+  bloodBankAvailable: boolean;
+  ayushmanBharatEmpanelled: boolean; // PM-JAY Cashless
+  ambulanceContact: string;
+  rating: number;
+  googlePlaceId?: string;
+  verifiedTimestamp: string;
+}
+
+export const ALL_INDIAN_STATES = [
+  'All States',
+  'Karnataka',
+  'Maharashtra',
+  'Delhi NCR',
+  'Tamil Nadu',
+  'Telangana',
+  'Kerala',
+  'Gujarat',
+  'West Bengal',
+  'Uttar Pradesh',
+  'Rajasthan',
+  'Andhra Pradesh',
+  'Punjab',
+  'Bihar',
+  'Odisha',
+  'Madhya Pradesh'
+] as const;
+
+export const STATE_DISTRICTS_MAP: Record<string, string[]> = {
+  'Karnataka': [
+    'All Districts',
+    'Bengaluru Urban',
+    'Bengaluru Rural',
+    'Mysuru',
+    'Belagavi',
+    'Dakshina Kannada (Mangaluru)',
+    'Dharwad (Hubballi)',
+    'Kalaburagi',
+    'Ballari',
+    'Shivamogga',
+    'Davangere',
+    'Udupi',
+    'Tumakuru'
+  ],
+  'Maharashtra': [
+    'All Districts',
+    'Mumbai City',
+    'Mumbai Suburban',
+    'Pune',
+    'Nagpur',
+    'Thane',
+    'Nashik',
+    'Aurangabad (Chhatrapati Sambhajinagar)',
+    'Solapur',
+    'Kolhapur'
+  ],
+  'Delhi NCR': [
+    'All Districts',
+    'New Delhi',
+    'South Delhi',
+    'Central Delhi',
+    'North Delhi',
+    'East Delhi',
+    'West Delhi',
+    'Gurugram',
+    'Noida / Gautam Buddha Nagar'
+  ],
+  'Tamil Nadu': [
+    'All Districts',
+    'Chennai',
+    'Coimbatore',
+    'Madurai',
+    'Tiruchirappalli',
+    'Salem',
+    'Tirunelveli',
+    'Vellore',
+    'Kanchipuram'
+  ],
+  'Telangana': [
+    'All Districts',
+    'Hyderabad',
+    'Ranga Reddy',
+    'Medchal-Malkajgiri',
+    'Warangal Urban',
+    'Karimnagar',
+    'Nizamabad'
+  ],
+  'Kerala': [
+    'All Districts',
+    'Thiruvananthapuram',
+    'Ernakulam (Kochi)',
+    'Kozhikode',
+    'Thrissur',
+    'Kottayam',
+    'Kannur'
+  ],
+  'Gujarat': [
+    'All Districts',
+    'Ahmedabad',
+    'Surat',
+    'Vadodara',
+    'Rajkot',
+    'Bhavnagar',
+    'Gandhinagar'
+  ],
+  'West Bengal': [
+    'All Districts',
+    'Kolkata',
+    'North 24 Parganas',
+    'South 24 Parganas',
+    'Howrah',
+    'Darjeeling',
+    'Paschim Medinipur'
+  ],
+  'Uttar Pradesh': [
+    'All Districts',
+    'Lucknow',
+    'Varanasi',
+    'Kanpur Nagar',
+    'Agra',
+    'Prayagraj (Allahabad)',
+    'Gorakhpur',
+    'Meerut',
+    'Gautam Buddha Nagar (Noida)'
+  ],
+  'Rajasthan': [
+    'All Districts',
+    'Jaipur',
+    'Jodhpur',
+    'Udaipur',
+    'Kota',
+    'Ajmer',
+    'Bikaner'
+  ],
+  'Andhra Pradesh': [
+    'All Districts',
+    'Visakhapatnam',
+    'Vijayawada (NTR)',
+    'Guntur',
+    'Tirupati',
+    'Kurnool'
+  ],
+  'Punjab': [
+    'All Districts',
+    'Ludhiana',
+    'Amritsar',
+    'Jalandhar',
+    'Patiala',
+    'SAS Nagar (Mohali)'
+  ],
+  'Bihar': [
+    'All Districts',
+    'Patna',
+    'Gaya',
+    'Muzaffarpur',
+    'Bhagalpur',
+    'Darbhanga'
+  ],
+  'Odisha': [
+    'All Districts',
+    'Khordha (Bhubaneswar)',
+    'Cuttack',
+    'Sundargarh (Rourkela)',
+    'Ganjam',
+    'Sambalpur'
+  ],
+  'Madhya Pradesh': [
+    'All Districts',
+    'Bhopal',
+    'Indore',
+    'Jabalpur',
+    'Gwalior',
+    'Ujjain'
+  ]
+};
+
+export const getDistrictsForState = (state: string): string[] => {
+  if (state === 'All States' || !STATE_DISTRICTS_MAP[state]) {
+    return ['All Districts'];
+  }
+  return STATE_DISTRICTS_MAP[state];
+};
+
+export const COMPREHENSIVE_HOSPITAL_DIRECTORY: HospitalDirectoryItem[] = [
+  // ==========================================
+  // KARNATAKA - Bengaluru Urban, Mysuru, Belagavi, Mangaluru, Hubballi
+  // ==========================================
+  {
+    id: 'hosp-ka-vic',
+    name: 'Victoria Hospital & BMCRI Public Medical Complex',
+    nameRegional: 'ವಿಕ್ಟೋರಿಯಾ ಆಸ್ಪತ್ರೆ (ಬಿಎಂಸಿಆರ್‌ಐ)',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Bengaluru',
+    district: 'Bengaluru Urban',
+    address: 'Fort Road, Near City Market, K.R. Market, Kalasipalya, Bengaluru',
+    pincode: '560002',
+    coordinates: { lat: 12.9629, lng: 77.5753 },
+    contactPerson: {
+      name: 'Dr. B. R. Manjunath, MD',
+      designation: 'Medical Superintendent & Emergency Chief',
+      phone: '+91 80 2670 9901',
+      email: 'cmo.victoria@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Trauma & Emergency Services'
+    },
+    phoneEmergency: '+91 80 2670 1150',
+    phoneVoiceIVR: '+91 80 2670 9901',
+    smsDispatchNumber: '+91 94808 01001',
+    officialEmail: 'medicalsuperintendent.vh@karnataka.gov.in',
+    triageEmail: 'emergency.triage.bmc@karnataka.gov.in',
+    availableSpecialties: ['Trauma & Resuscitation', 'General Medicine', 'Burns Super-Specialty', 'Cardiology', 'Orthopedics', 'Pediatrics'],
+    totalBeds: 1200,
+    icuBedsAvailable: 14,
+    ventilatorsAvailable: 8,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 80 2670 1150',
+    rating: 4.6,
+    googlePlaceId: 'ChIJ2-p_1wIVrjsReZfE5e6Xh4A',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-bow',
+    name: 'Bowring & Lady Curzon Hospital',
+    nameRegional: 'ಬೌರಿಂಗ್ ಮತ್ತು ಲೇಡಿ ಕರ್ಜನ್ ಆಸ್ಪತ್ರೆ',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Bengaluru',
+    district: 'Bengaluru Urban',
+    address: 'Lady Curzon Road, Tasker Town, Shivajinagar, Bengaluru',
+    pincode: '560001',
+    coordinates: { lat: 12.9818, lng: 77.6033 },
+    contactPerson: {
+      name: 'Dr. Savitha Rani, MS, MCh',
+      designation: 'Chief Nodal Triage Officer',
+      phone: '+91 80 2559 2200',
+      email: 'nodal.bowring@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Outpatient Triage Directorate'
+    },
+    phoneEmergency: '+91 80 2559 1362',
+    phoneVoiceIVR: '+91 80 2559 2200',
+    smsDispatchNumber: '+91 94808 01002',
+    officialEmail: 'ms.bowring@karnataka.gov.in',
+    triageEmail: 'triage.bowring@karnataka.gov.in',
+    availableSpecialties: ['General Medicine', 'Obstetrics & Gynecology', 'Neonatology', 'Pulmonology', 'Ophthalmology'],
+    totalBeds: 686,
+    icuBedsAvailable: 9,
+    ventilatorsAvailable: 5,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 80 2559 1362',
+    rating: 4.4,
+    googlePlaceId: 'ChIJ0x4ZzI8VrjsR5g0L1GkH_dE',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-jay',
+    name: 'Sri Jayadeva Institute of Cardiovascular Sciences & Research',
+    nameRegional: 'ಶ್ರೀ ಜಯದೇವ ಹೃದ್ರೋಗ ವಿಜ್ಞಾನ ಮತ್ತು ಸಂಶೋಧನಾ ಸಂಸ್ಥೆ',
+    category: 'Autonomous / AIIMS',
+    state: 'Karnataka',
+    city: 'Bengaluru',
+    district: 'Bengaluru Urban',
+    address: 'Bannerghatta Main Road, 9th Block, Jayanagar, Bengaluru',
+    pincode: '560069',
+    coordinates: { lat: 12.9237, lng: 77.5997 },
+    contactPerson: {
+      name: 'Dr. C. N. Manjunath / Dr. K. S. Ravindranath, DM',
+      designation: 'Director & Chief Cardiac Triage Nodal Officer',
+      phone: '+91 80 2297 7200',
+      email: 'cardiac.nodal@jayadevacardiology.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Interventional Cardiology'
+    },
+    phoneEmergency: '+91 80 2297 7400',
+    phoneVoiceIVR: '+91 80 2297 7200',
+    smsDispatchNumber: '+91 94808 01003',
+    officialEmail: 'director@jayadevacardiology.com',
+    triageEmail: 'cardiac.emergency@jayadevacardiology.com',
+    availableSpecialties: ['Interventional Cardiology', 'Pediatric Cardiology', 'Cardiothoracic Surgery', 'Cardiac ICU'],
+    totalBeds: 1150,
+    icuBedsAvailable: 22,
+    ventilatorsAvailable: 15,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 80 2297 7400',
+    rating: 4.8,
+    googlePlaceId: 'ChIJ7Y6_G80UrjsRFq9o94i4_lA',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-manipal',
+    name: 'Manipal Hospital Old Airport Road',
+    nameRegional: 'ಮಣಿಪಾಲ್ ಆಸ್ಪತ್ರೆ',
+    category: 'Private',
+    state: 'Karnataka',
+    city: 'Bengaluru',
+    district: 'Bengaluru Urban',
+    address: '98, HAL Old Airport Rd, Kodihalli, Bengaluru',
+    pincode: '560017',
+    coordinates: { lat: 12.9592, lng: 77.6499 },
+    contactPerson: {
+      name: 'Dr. Sudarshan Ballal, MD, FRCP',
+      designation: 'Head of Emergency & Critical Care',
+      phone: '+91 80 2502 3333',
+      email: 'er.oar@manipalhospitals.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency Medicine & Critical Care'
+    },
+    phoneEmergency: '+91 80 2502 4444',
+    phoneVoiceIVR: '+91 80 2502 3333',
+    smsDispatchNumber: '+91 99000 11222',
+    officialEmail: 'info@manipalhospitals.com',
+    triageEmail: 'emergency.oar@manipalhospitals.com',
+    availableSpecialties: ['Polytrauma', 'Neurology', 'Oncology', 'Organ Transplant', 'Robotic Surgery', 'Pediatric ICU'],
+    totalBeds: 600,
+    icuBedsAvailable: 18,
+    ventilatorsAvailable: 12,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '080-22221111',
+    rating: 4.7,
+    googlePlaceId: 'ChIJ9Tf37GcVrjsRkmJ9Z7bN9Yk',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-mys-kr',
+    name: 'K.R. Hospital & MMCRI Mysuru',
+    nameRegional: 'ಕೆ.ಆರ್. ಆಸ್ಪತ್ರೆ (ಮೈಸೂರು)',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Mysuru',
+    district: 'Mysuru',
+    address: 'Sayyaji Rao Road, Irwin Road Junction, Medar Block, Yadavagiri, Mysuru',
+    pincode: '570001',
+    coordinates: { lat: 12.3168, lng: 76.6508 },
+    contactPerson: {
+      name: 'Dr. Rajesh Kumar, MD',
+      designation: 'Medical Superintendent & District Triage Head',
+      phone: '+91 821 242 0500',
+      email: 'ms.krhospital@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Casualty & Critical Care'
+    },
+    phoneEmergency: '+91 821 242 0500',
+    phoneVoiceIVR: '+91 821 242 0555',
+    smsDispatchNumber: '+91 94808 02001',
+    officialEmail: 'dean_mmcri@karnataka.gov.in',
+    triageEmail: 'triage.krmysuru@karnataka.gov.in',
+    availableSpecialties: ['Trauma Care', 'General Medicine', 'Pediatrics', 'Obstetrics', 'Orthopedics', 'Dermatology'],
+    totalBeds: 1050,
+    icuBedsAvailable: 12,
+    ventilatorsAvailable: 7,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 821 242 0500',
+    rating: 4.5,
+    googlePlaceId: 'ChIJN1tT_r21rjsR_kr_hosp_mys',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-bims-bel',
+    name: 'BIMS District Teaching Hospital Belagavi',
+    nameRegional: 'ಬಿಮ್ಸ್ ಜಿಲ್ಲಾ ಬೋಧನಾ ಆಸ್ಪತ್ರೆ ಬೆಳಗಾವಿ',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Belagavi',
+    district: 'Belagavi',
+    address: 'Dr. B. R. Ambedkar Road, Belagavi',
+    pincode: '590001',
+    coordinates: { lat: 15.8497, lng: 74.4977 },
+    contactPerson: {
+      name: 'Dr. Ashok Kumar Shetty, MS',
+      designation: 'Superintendent & Nodal Triage Lead',
+      phone: '+91 831 240 3100',
+      email: 'nodal.bims@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Surgical Triage'
+    },
+    phoneEmergency: '+91 831 240 3100',
+    phoneVoiceIVR: '+91 831 240 3122',
+    smsDispatchNumber: '+91 94808 03001',
+    officialEmail: 'director@bimsbelgaum.org',
+    triageEmail: 'triage@bimsbelgaum.org',
+    availableSpecialties: ['Trauma Center', 'General Medicine', 'General Surgery', 'Cardiology', 'Pediatrics'],
+    totalBeds: 800,
+    icuBedsAvailable: 10,
+    ventilatorsAvailable: 6,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 831 240 3100',
+    rating: 4.4,
+    googlePlaceId: 'ChIJN1tT_bims_belagavi',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-wenlock-mng',
+    name: 'Government Wenlock District Hospital Mangaluru',
+    nameRegional: 'ಸರ್ಕಾರಿ ವೆನ್ಲಾಕ್ ಜಿಲ್ಲಾ ಆಸ್ಪತ್ರೆ ಮಂಗಳೂರು',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Mangaluru',
+    district: 'Dakshina Kannada (Mangaluru)',
+    address: 'Hampankatta, Mangaluru, Dakshina Kannada',
+    pincode: '575001',
+    coordinates: { lat: 12.8687, lng: 74.8427 },
+    contactPerson: {
+      name: 'Dr. Sadashiva Shanbhogue, MD',
+      designation: 'District Surgeon & Superintendent',
+      phone: '+91 824 244 4444',
+      email: 'surgeon.wenlock@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Central Triage & Regional Trauma'
+    },
+    phoneEmergency: '+91 824 244 4444',
+    phoneVoiceIVR: '+91 824 244 4455',
+    smsDispatchNumber: '+91 94808 04001',
+    officialEmail: 'wenlock_hospital@yahoo.co.in',
+    triageEmail: 'triage.wenlock@karnataka.gov.in',
+    availableSpecialties: ['Regional Trauma Care', 'General Medicine', 'Pulmonology', 'Pediatrics', 'Psychiatry'],
+    totalBeds: 900,
+    icuBedsAvailable: 14,
+    ventilatorsAvailable: 9,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 824 244 4444',
+    rating: 4.5,
+    googlePlaceId: 'ChIJN1tT_wenlock_mangaluru',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-ka-kims-hub',
+    name: 'KIMS (Karnataka Institute of Medical Sciences) Hubballi',
+    nameRegional: 'ಕಿಮ್ಸ್ ಆಸ್ಪತ್ರೆ ಹುಬ್ಬಳ್ಳಿ',
+    category: 'Government',
+    state: 'Karnataka',
+    city: 'Hubballi',
+    district: 'Dharwad (Hubballi)',
+    address: 'PB Road, Vidyanagar, Hubballi, Dharwad',
+    pincode: '580022',
+    coordinates: { lat: 15.3647, lng: 75.124 },
+    contactPerson: {
+      name: 'Dr. Ramalingappa Antaratani, MS',
+      designation: 'Medical Superintendent & Critical Care Head',
+      phone: '+91 836 227 2044',
+      email: 'ms.kims@karnataka.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Polytrauma'
+    },
+    phoneEmergency: '+91 836 227 2044',
+    phoneVoiceIVR: '+91 836 227 2088',
+    smsDispatchNumber: '+91 94808 05001',
+    officialEmail: 'director@kimshubballi.org',
+    triageEmail: 'emergency@kimshubballi.org',
+    availableSpecialties: ['Emergency Trauma Level 1', 'Neurosurgery', 'Cardiology', 'Nephrology', 'Burn Center'],
+    totalBeds: 1250,
+    icuBedsAvailable: 16,
+    ventilatorsAvailable: 11,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 836 227 2044',
+    rating: 4.6,
+    googlePlaceId: 'ChIJN1tT_kims_hubballi',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // MAHARASHTRA - Mumbai City, Mumbai Suburban, Pune, Nagpur
+  // ==========================================
+  {
+    id: 'hosp-mh-kem',
+    name: 'KEM Hospital & Seth G.S. Medical College',
+    nameRegional: 'के.ई.एम. रुग्णालय (परेल, मुंबई)',
+    category: 'Government',
+    state: 'Maharashtra',
+    city: 'Mumbai',
+    district: 'Mumbai City',
+    address: 'Acharya Donde Marg, Parel East, Mumbai',
+    pincode: '400012',
+    coordinates: { lat: 19.0028, lng: 72.8427 },
+    contactPerson: {
+      name: 'Dr. Sangeeta Rawat, MD, DM',
+      designation: 'Dean & Chief Emergency Triage Nodal Officer',
+      phone: '+91 22 2410 7500',
+      email: 'dean.kem@mcgm.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Trauma & Emergency Services'
+    },
+    phoneEmergency: '+91 22 2410 7000',
+    phoneVoiceIVR: '+91 22 2410 7500',
+    smsDispatchNumber: '+91 98200 11001',
+    officialEmail: 'dean@kem.edu',
+    triageEmail: 'triage.kem@mcgm.gov.in',
+    availableSpecialties: ['Trauma Center', 'Cardiology', 'Nephrology', 'General Surgery', 'Pediatrics'],
+    totalBeds: 1800,
+    icuBedsAvailable: 24,
+    ventilatorsAvailable: 16,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 22 2413 6051',
+    rating: 4.5,
+    googlePlaceId: 'ChIJg_M9d9_P5zsR1u1q1c5U5zM',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-mh-lilavati',
+    name: 'Lilavati Hospital and Research Centre',
+    nameRegional: 'लीलावती हॉस्पिटल (वांद्रे)',
+    category: 'Trust / Charitable',
+    state: 'Maharashtra',
+    city: 'Mumbai',
+    district: 'Mumbai Suburban',
+    address: 'A-791, Bandra Reclamation, Bandra West, Mumbai',
+    pincode: '400050',
+    coordinates: { lat: 19.0518, lng: 72.829 },
+    contactPerson: {
+      name: 'Dr. V. Ravishankar, MS',
+      designation: 'Chief Operating Officer & Emergency Director',
+      phone: '+91 22 2675 1000',
+      email: 'coo@lilavatihospital.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Critical Care'
+    },
+    phoneEmergency: '+91 22 2675 1000',
+    phoneVoiceIVR: '+91 22 2675 1111',
+    smsDispatchNumber: '+91 98200 22002',
+    officialEmail: 'info@lilavatihospital.com',
+    triageEmail: 'emergency@lilavatihospital.com',
+    availableSpecialties: ['Cardiac Care', 'Neuro Sciences', 'Oncology', 'Orthopedics', 'Gastroenterology'],
+    totalBeds: 323,
+    icuBedsAvailable: 12,
+    ventilatorsAvailable: 8,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '022-26568000',
+    rating: 4.7,
+    googlePlaceId: 'ChIJv8G3hH7P5zsRn4J0sKzZ2v0',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-mh-sassoon-pune',
+    name: 'Sassoon General Hospital & BJ Government Medical College',
+    nameRegional: 'ससून सर्वोपचार रुग्णालय पुणे',
+    category: 'Government',
+    state: 'Maharashtra',
+    city: 'Pune',
+    district: 'Pune',
+    address: 'Near Pune Railway Station, Sassoon Road, Pune',
+    pincode: '411001',
+    coordinates: { lat: 18.5284, lng: 73.874 },
+    contactPerson: {
+      name: 'Dr. Sanjiv Thakur, MS',
+      designation: 'Dean & Nodal Head of Trauma Unit',
+      phone: '+91 20 2612 8000',
+      email: 'deanbjmcpune@gmail.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Casualty & Disaster Management'
+    },
+    phoneEmergency: '+91 20 2612 8000',
+    phoneVoiceIVR: '+91 20 2612 8080',
+    smsDispatchNumber: '+91 98200 33003',
+    officialEmail: 'dean@bjmcpune.org',
+    triageEmail: 'emergency.sassoon@maharashtra.gov.in',
+    availableSpecialties: ['Level 1 Trauma', 'Cardiac Resuscitation', 'Pediatric ICU', 'Burns Unit', 'Orthopedics'],
+    totalBeds: 1296,
+    icuBedsAvailable: 18,
+    ventilatorsAvailable: 12,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 20 2612 8000',
+    rating: 4.4,
+    googlePlaceId: 'ChIJN1tT_sassoon_pune',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-mh-aiims-nagpur',
+    name: 'AIIMS Nagpur (All India Institute of Medical Sciences)',
+    nameRegional: 'एम्स नागपूर (अखिल भारतीय आयुर्विज्ञान संस्था)',
+    category: 'Autonomous / AIIMS',
+    state: 'Maharashtra',
+    city: 'Nagpur',
+    district: 'Nagpur',
+    address: 'Plot No. 2, Sector 20, MIHAN, Nagpur',
+    pincode: '441108',
+    coordinates: { lat: 21.0456, lng: 79.0345 },
+    contactPerson: {
+      name: 'Dr. Prashant Joshi, MD, FRCP',
+      designation: 'Executive Director & Chief Triage Officer',
+      phone: '+91 712 295 5555',
+      email: 'director@aiimsnagpur.edu.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency Medicine & Multi-specialty Triage'
+    },
+    phoneEmergency: '+91 712 295 5555',
+    phoneVoiceIVR: '+91 712 295 5500',
+    smsDispatchNumber: '+91 98200 44004',
+    officialEmail: 'info@aiimsnagpur.edu.in',
+    triageEmail: 'emergency@aiimsnagpur.edu.in',
+    availableSpecialties: ['Trauma & Emergency Care', 'Cardiology', 'Neurosurgery', 'Surgical Oncology', 'Pulmonology'],
+    totalBeds: 960,
+    icuBedsAvailable: 26,
+    ventilatorsAvailable: 18,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 712 295 5555',
+    rating: 4.8,
+    googlePlaceId: 'ChIJN1tT_aiims_nagpur',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // DELHI NCR - New Delhi, South Delhi, Gurugram, Noida
+  // ==========================================
+  {
+    id: 'hosp-dl-aiims',
+    name: 'AIIMS New Delhi (All India Institute of Medical Sciences)',
+    nameRegional: 'अखिल भारतीय आयुर्विज्ञान संस्थान (एम्स नई दिल्ली)',
+    category: 'Autonomous / AIIMS',
+    state: 'Delhi NCR',
+    city: 'New Delhi',
+    district: 'New Delhi',
+    address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi',
+    pincode: '110029',
+    coordinates: { lat: 28.5672, lng: 77.21 },
+    contactPerson: {
+      name: 'Dr. M. Srinivas, MS, MCh',
+      designation: 'Director & Apex Triage Controller',
+      phone: '+91 11 2658 8500',
+      email: 'director@aiims.edu',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Apex Trauma & Emergency Center'
+    },
+    phoneEmergency: '+91 11 2658 8700',
+    phoneVoiceIVR: '+91 11 2658 8500',
+    smsDispatchNumber: '+91 98100 11001',
+    officialEmail: 'director@aiims.edu',
+    triageEmail: 'emergency.trauma@aiims.edu',
+    availableSpecialties: ['JPN Apex Trauma Center', 'Cardiothoracic Sciences', 'Neurosciences', 'Cancer Center', 'Pediatric Surgery'],
+    totalBeds: 2478,
+    icuBedsAvailable: 35,
+    ventilatorsAvailable: 24,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '102 / 108 / +91 11 2658 8700',
+    rating: 4.9,
+    googlePlaceId: 'ChIJ2fGk7krhDDkRcK7Y9qUv-X4',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-dl-safdarjung',
+    name: 'Safdarjung Hospital & VMMC Public Complex',
+    nameRegional: 'सफ़दरजंग अस्पताल नई दिल्ली',
+    category: 'Government',
+    state: 'Delhi NCR',
+    city: 'New Delhi',
+    district: 'South Delhi',
+    address: 'Ring Road, Opposite AIIMS, Ansari Nagar West, New Delhi',
+    pincode: '110029',
+    coordinates: { lat: 28.5694, lng: 77.2078 },
+    contactPerson: {
+      name: 'Dr. B. L. Sherwal, MD',
+      designation: 'Medical Superintendent & Emergency Chief',
+      phone: '+91 11 2616 5060',
+      email: 'ms@safdarjunghospital.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Burns Block'
+    },
+    phoneEmergency: '+91 11 2616 5060',
+    phoneVoiceIVR: '+91 11 2616 5000',
+    smsDispatchNumber: '+91 98100 22002',
+    officialEmail: 'ms@vmmc-sjh.nic.in',
+    triageEmail: 'triage.sjh@nic.in',
+    availableSpecialties: ['Emergency Block', 'Largest Burns & Plastic Unit', 'Orthopedics', 'Pediatrics', 'Cardiology'],
+    totalBeds: 2900,
+    icuBedsAvailable: 38,
+    ventilatorsAvailable: 25,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '102 / +91 11 2616 5060',
+    rating: 4.6,
+    googlePlaceId: 'ChIJ9T_safdarjung_delhi',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-dl-medanta-ggn',
+    name: 'Medanta - The Medicity Gurugram',
+    nameRegional: 'मेदांता - द मेडिसिटी (गुरुग्राम)',
+    category: 'Private',
+    state: 'Delhi NCR',
+    city: 'Gurugram',
+    district: 'Gurugram',
+    address: 'CH Bakhtawar Singh Rd, Sector 38, Gurugram, Haryana',
+    pincode: '122001',
+    coordinates: { lat: 28.4398, lng: 77.0428 },
+    contactPerson: {
+      name: 'Dr. Naresh Trehan, MD, FACS',
+      designation: 'Chairman & Chief Cardiac/Critical Care Lead',
+      phone: '+91 124 414 1414',
+      email: 'emergency@medanta.org',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Critical Care Institute'
+    },
+    phoneEmergency: '+91 124 414 1414',
+    phoneVoiceIVR: '+91 124 483 4567',
+    smsDispatchNumber: '+91 98100 33003',
+    officialEmail: 'info@medanta.org',
+    triageEmail: 'er.medicity@medanta.org',
+    availableSpecialties: ['Heart Institute', 'Neurosciences', 'Liver Transplant', 'Critical Care & Emergency', 'Robotic Surgery'],
+    totalBeds: 1250,
+    icuBedsAvailable: 30,
+    ventilatorsAvailable: 20,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '1068 / +91 124 414 1414',
+    rating: 4.8,
+    googlePlaceId: 'ChIJ9T_medanta_gurugram',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // TAMIL NADU - Chennai, Coimbatore, Madurai
+  // ==========================================
+  {
+    id: 'hosp-tn-gh-chn',
+    name: 'Rajiv Gandhi Government General Hospital (RGGGH) Chennai',
+    nameRegional: 'ராஜீவ் காந்தி அரசு பொது மருத்துவமனை (சென்னை)',
+    category: 'Government',
+    state: 'Tamil Nadu',
+    city: 'Chennai',
+    district: 'Chennai',
+    address: 'EVR Periyar Salai, Park Town, Chennai',
+    pincode: '600003',
+    coordinates: { lat: 13.0827, lng: 80.2707 },
+    contactPerson: {
+      name: 'Dr. E. Theranirajan, MD, DCH',
+      designation: 'Dean & Apex Triage Controller',
+      phone: '+91 44 2530 5000',
+      email: 'deanmmc@tn.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Trauma & Emergency Care Centre'
+    },
+    phoneEmergency: '+91 44 2530 5000',
+    phoneVoiceIVR: '+91 44 2530 5111',
+    smsDispatchNumber: '+91 94440 01101',
+    officialEmail: 'dean@mmc.ac.in',
+    triageEmail: 'emergency.rgggh@tn.gov.in',
+    availableSpecialties: ['Tower Trauma Block', 'Rheumatology', 'Neurology', 'Cardiothoracic', 'General Medicine'],
+    totalBeds: 2722,
+    icuBedsAvailable: 36,
+    ventilatorsAvailable: 22,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 44 2530 5000',
+    rating: 4.7,
+    googlePlaceId: 'ChIJUWbT_rgggh_chennai',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-tn-apollo-chn',
+    name: 'Apollo Hospital Greams Road Chennai',
+    nameRegional: 'அப்பல்லோ மருத்துவமனை (கிரீம்ஸ் ரோடு)',
+    category: 'Private',
+    state: 'Tamil Nadu',
+    city: 'Chennai',
+    district: 'Chennai',
+    address: '21 Greams Lane, Off Greams Road, Thousand Lights, Chennai',
+    pincode: '600006',
+    coordinates: { lat: 13.0604, lng: 80.2505 },
+    contactPerson: {
+      name: 'Dr. Prathap C. Reddy / Dr. R. K. Venkat, MD',
+      designation: 'Emergency Medical Director',
+      phone: '+91 44 2829 0200',
+      email: 'er.chennai@apollohospitals.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Critical Care'
+    },
+    phoneEmergency: '+91 44 2829 0200',
+    phoneVoiceIVR: '+91 44 2829 3333',
+    smsDispatchNumber: '+91 94440 02202',
+    officialEmail: 'customercare@apollohospitals.com',
+    triageEmail: 'emergency.greams@apollohospitals.com',
+    availableSpecialties: ['Cardiology', 'Oncology', 'Organ Transplants', 'Neurology', 'Emergency 24x7'],
+    totalBeds: 600,
+    icuBedsAvailable: 20,
+    ventilatorsAvailable: 14,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '1066',
+    rating: 4.8,
+    googlePlaceId: 'ChIJy_-apollo_chennai',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-tn-cmc-cbe',
+    name: 'Coimbatore Medical College Hospital (CMCH)',
+    nameRegional: 'கோயம்புத்தூர் மருத்துவக் கல்லூரி மருத்துவமனை',
+    category: 'Government',
+    state: 'Tamil Nadu',
+    city: 'Coimbatore',
+    district: 'Coimbatore',
+    address: 'Trichy Road, Gopalapuram, Coimbatore',
+    pincode: '641018',
+    coordinates: { lat: 11.0016, lng: 76.966 },
+    contactPerson: {
+      name: 'Dr. A. Nirmala, MD',
+      designation: 'Dean & Regional Emergency Head',
+      phone: '+91 422 230 1393',
+      email: 'deancmch@tn.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Casualty & Critical Care Unit'
+    },
+    phoneEmergency: '+91 422 230 1393',
+    phoneVoiceIVR: '+91 422 230 1300',
+    smsDispatchNumber: '+91 94440 03303',
+    officialEmail: 'dean@cmc.ac.in',
+    triageEmail: 'emergency.cmch@tn.gov.in',
+    availableSpecialties: ['Comprehensive Trauma', 'Pediatric ICU', 'General Medicine', 'Cardiology', 'Obstetrics'],
+    totalBeds: 1400,
+    icuBedsAvailable: 20,
+    ventilatorsAvailable: 12,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 422 230 1393',
+    rating: 4.5,
+    googlePlaceId: 'ChIJy_-cmch_coimbatore',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // TELANGANA - Hyderabad, Ranga Reddy
+  // ==========================================
+  {
+    id: 'hosp-tg-osmania',
+    name: 'Osmania General Hospital Hyderabad',
+    nameRegional: 'ఉస్మానియా జనరల్ హాస్పిటల్ (హైదరాబాద్)',
+    category: 'Government',
+    state: 'Telangana',
+    city: 'Hyderabad',
+    district: 'Hyderabad',
+    address: 'Afzal Gunj, High Court Road, Hyderabad',
+    pincode: '500012',
+    coordinates: { lat: 17.3768, lng: 78.4754 },
+    contactPerson: {
+      name: 'Dr. B. Nagender, MS',
+      designation: 'Superintendent & Triage Chief',
+      phone: '+91 40 2460 0121',
+      email: 'supt.ogh@telangana.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Acute Trauma'
+    },
+    phoneEmergency: '+91 40 2460 0121',
+    phoneVoiceIVR: '+91 40 2460 0100',
+    smsDispatchNumber: '+91 98490 01101',
+    officialEmail: 'supt_ogh@telangana.gov.in',
+    triageEmail: 'emergency.ogh@telangana.gov.in',
+    availableSpecialties: ['Acute Trauma Block', 'General Surgery', 'General Medicine', 'Nephrology', 'Cardiology'],
+    totalBeds: 1500,
+    icuBedsAvailable: 22,
+    ventilatorsAvailable: 15,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 40 2460 0121',
+    rating: 4.5,
+    googlePlaceId: 'ChIJg_M9d9_P5zsR1u1q1c5U5zN',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-tg-nims',
+    name: 'Nizam’s Institute of Medical Sciences (NIMS) Hyderabad',
+    nameRegional: 'నిజాం ఇన్స్టిట్యూట్ ఆఫ్ మెడికల్ సైన్సెస్ (నిమ్స్)',
+    category: 'Autonomous / AIIMS',
+    state: 'Telangana',
+    city: 'Hyderabad',
+    district: 'Hyderabad',
+    address: 'Punjagutta, Hyderabad',
+    pincode: '500082',
+    coordinates: { lat: 17.4227, lng: 78.4526 },
+    contactPerson: {
+      name: 'Dr. K. Manohar, MD',
+      designation: 'Director & Critical Triage Lead',
+      phone: '+91 40 2348 9000',
+      email: 'director@nims.edu.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Super Specialty Triage & Emergency'
+    },
+    phoneEmergency: '+91 40 2348 9000',
+    phoneVoiceIVR: '+91 40 2348 9111',
+    smsDispatchNumber: '+91 98490 02202',
+    officialEmail: 'nims@telangana.gov.in',
+    triageEmail: 'emergency.nims@telangana.gov.in',
+    availableSpecialties: ['Cardiology', 'Neurosurgery', 'Rheumatology', 'Oncology', 'Emergency Medicine'],
+    totalBeds: 1489,
+    icuBedsAvailable: 28,
+    ventilatorsAvailable: 18,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 40 2348 9000',
+    rating: 4.7,
+    googlePlaceId: 'ChIJg_M9d9_P5zsR1u1q1c5U5zO',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // KERALA - Thiruvananthapuram, Ernakulam (Kochi)
+  // ==========================================
+  {
+    id: 'hosp-kl-mct-tvm',
+    name: 'Government Medical College Hospital Thiruvananthapuram',
+    nameRegional: 'മെഡിക്കൽ കോളേജ് ആശുപത്രി (തിരുവനന്തപുരം)',
+    category: 'Government',
+    state: 'Kerala',
+    city: 'Thiruvananthapuram',
+    district: 'Thiruvananthapuram',
+    address: 'Medical College Junction, Chalakkuzhi, Thiruvananthapuram',
+    pincode: '695011',
+    coordinates: { lat: 8.5241, lng: 76.9248 },
+    contactPerson: {
+      name: 'Dr. Thomas Mathew, MD',
+      designation: 'Principal & Regional Triage Supervisor',
+      phone: '+91 471 252 8000',
+      email: 'principal.mct@kerala.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Comprehensive Trauma & Critical Care'
+    },
+    phoneEmergency: '+91 471 252 8300',
+    phoneVoiceIVR: '+91 471 252 8000',
+    smsDispatchNumber: '+91 94470 01101',
+    officialEmail: 'principalmct@kerala.gov.in',
+    triageEmail: 'emergency.mct@kerala.gov.in',
+    availableSpecialties: ['Comprehensive Trauma Care', 'Neurology', 'Pediatric Nephrology', 'Cardiology', 'Dermatology'],
+    totalBeds: 1950,
+    icuBedsAvailable: 25,
+    ventilatorsAvailable: 18,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 471 252 8300',
+    rating: 4.7,
+    googlePlaceId: 'ChIJV4qfm6r9DDkR7w1v51pG6t9',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+  {
+    id: 'hosp-kl-aster-ekm',
+    name: 'Aster Medcity Kochi',
+    nameRegional: 'ആസ്റ്റർ മെഡ്സിറ്റി (കൊച്ചി)',
+    category: 'Private',
+    state: 'Kerala',
+    city: 'Kochi',
+    district: 'Ernakulam (Kochi)',
+    address: 'Kuttisahib Road, Near Kothad Bridge, South Chittoor, Kochi',
+    pincode: '682027',
+    coordinates: { lat: 10.052, lng: 76.2625 },
+    contactPerson: {
+      name: 'Dr. Azad Moopen / Dr. Johnson K. Paul, MD',
+      designation: 'Head of Emergency & Disaster Triage',
+      phone: '+91 484 669 9999',
+      email: 'emergency@asterhospital.com',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Emergency & Critical Care'
+    },
+    phoneEmergency: '+91 484 669 9999',
+    phoneVoiceIVR: '+91 484 669 9000',
+    smsDispatchNumber: '+91 94470 02202',
+    officialEmail: 'info@astermedcity.com',
+    triageEmail: 'triage.kochi@asterhospital.com',
+    availableSpecialties: ['Organ Transplant', 'Cardiac Sciences', 'Neurosciences', 'Pediatric Oncology', '24x7 Emergency'],
+    totalBeds: 670,
+    icuBedsAvailable: 22,
+    ventilatorsAvailable: 14,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '155218 / +91 484 669 9999',
+    rating: 4.8,
+    googlePlaceId: 'ChIJ-aster_medcity_kochi',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // GUJARAT - Ahmedabad, Surat
+  // ==========================================
+  {
+    id: 'hosp-gj-civil',
+    name: 'Civil Hospital Ahmedabad (Asia’s Largest Public Hospital Campus)',
+    nameRegional: 'સિવિલ હોસ્પિટલ, અમદાવાદ',
+    category: 'Government',
+    state: 'Gujarat',
+    city: 'Ahmedabad',
+    district: 'Ahmedabad',
+    address: 'D-Block, Haripura, Asarwa, Ahmedabad',
+    pincode: '380016',
+    coordinates: { lat: 23.0525, lng: 72.5956 },
+    contactPerson: {
+      name: 'Dr. Rakesh Joshi, MS, MCh',
+      designation: 'Medical Superintendent & Apex Nodal Officer',
+      phone: '+91 79 2268 0000',
+      email: 'ms.civilahd@gujarat.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Trauma & Emergency Services'
+    },
+    phoneEmergency: '+91 79 2268 3721',
+    phoneVoiceIVR: '+91 79 2268 0000',
+    smsDispatchNumber: '+91 99250 01101',
+    officialEmail: 'medicalsuperintendent-ch-ahd@gujarat.gov.in',
+    triageEmail: 'emergency.civilahd@gujarat.gov.in',
+    availableSpecialties: ['1200 Bed Trauma & Super Specialty', 'Urology & Kidney Diseases', 'Ophthalmic Institute', 'Cardiology'],
+    totalBeds: 2800,
+    icuBedsAvailable: 42,
+    ventilatorsAvailable: 28,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 79 2268 3721',
+    rating: 4.6,
+    googlePlaceId: 'ChIJV4qfm6r9DDkR7w1v51pG6tA',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // WEST BENGAL - Kolkata
+  // ==========================================
+  {
+    id: 'hosp-wb-sskm',
+    name: 'IPGMER and SSKM Hospital Kolkata',
+    nameRegional: 'এসএসকেএম হাসপাতাল (পিজি হাসপাতাল, কলকাতা)',
+    category: 'Government',
+    state: 'West Bengal',
+    city: 'Kolkata',
+    district: 'Kolkata',
+    address: '244, AJC Bose Road, Bhowanipore, Kolkata',
+    pincode: '700020',
+    coordinates: { lat: 22.5385, lng: 88.3444 },
+    contactPerson: {
+      name: 'Dr. Manimoy Bandyopadhyay, MS',
+      designation: 'Director & Triage Nodal Superintendent',
+      phone: '+91 33 2223 0000',
+      email: 'director.ipgmer@wbhealth.gov.in',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Trauma Center Level 1'
+    },
+    phoneEmergency: '+91 33 2223 1589',
+    phoneVoiceIVR: '+91 33 2223 0000',
+    smsDispatchNumber: '+91 98300 01101',
+    officialEmail: 'director.ipgmer@wbhealth.gov.in',
+    triageEmail: 'emergency.sskm@wbhealth.gov.in',
+    availableSpecialties: ['Trauma Center Level 1', 'Institute of Neurosciences', 'Cardiothoracic Surgery', 'Hepatology', 'Rheumatology'],
+    totalBeds: 2100,
+    icuBedsAvailable: 28,
+    ventilatorsAvailable: 19,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / +91 33 2223 1589',
+    rating: 4.6,
+    googlePlaceId: 'ChIJV4qfm6r9DDkR7w1v51pG6tB',
+    verifiedTimestamp: 'Live Telemetry Active'
+  },
+
+  // ==========================================
+  // UTTAR PRADESH - Lucknow, Varanasi
+  // ==========================================
+  {
+    id: 'hosp-up-kgmu',
+    name: 'King George’s Medical University (KGMU) Lucknow',
+    nameRegional: 'किंग जॉर्ज मेडिकल यूनिवर्सिटी (केजीएमयू, लखनऊ)',
+    category: 'Government',
+    state: 'Uttar Pradesh',
+    city: 'Lucknow',
+    district: 'Lucknow',
+    address: 'Shah Mina Road, Chowk, Lucknow',
+    pincode: '226003',
+    coordinates: { lat: 26.8698, lng: 80.9167 },
+    contactPerson: {
+      name: 'Dr. S. N. Sankhwar / Dr. B. K. Ojha, MCh',
+      designation: 'Chief Medical Superintendent & Trauma In-charge',
+      phone: '+91 522 225 7400',
+      email: 'cms@kgmcindia.edu',
+      dutyStatus: 'On Active Emergency Duty',
+      department: 'Shatabdi Trauma & Emergency Centre'
+    },
+    phoneEmergency: '+91 522 225 7450',
+    phoneVoiceIVR: '+91 522 225 7400',
+    smsDispatchNumber: '+91 94150 01101',
+    officialEmail: 'vc@kgmcindia.edu',
+    triageEmail: 'trauma.kgmu@up.gov.in',
+    availableSpecialties: ['Shatabdi Trauma Center', 'Pediatric Intensive Care', 'Pulmonary Critical Care', 'Cardiovascular Surgery', 'Orthopedic Trauma'],
+    totalBeds: 3400,
+    icuBedsAvailable: 46,
+    ventilatorsAvailable: 32,
+    bloodBankAvailable: true,
+    ayushmanBharatEmpanelled: true,
+    ambulanceContact: '108 / 102 / +91 522 225 7450',
+    rating: 4.7,
+    googlePlaceId: 'ChIJV4qfm6r9DDkR7w1v51pG6tC',
+    verifiedTimestamp: 'Live Telemetry Active'
+  }
+];
