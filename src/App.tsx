@@ -34,10 +34,65 @@ import { LiveQueueBoard } from './components/LiveQueueBoard';
 import { HospitalAssistant } from './components/HospitalAssistant';
 import { NurseStation } from './components/NurseStation';
 import { HospitalFinderAndDispatch } from './components/HospitalFinderAndDispatch';
+import { UniversalDesktopNavbar } from './components/navigation/UniversalDesktopNavbar';
+import { MobileBottomBar } from './components/navigation/MobileBottomBar';
+import { MobileNavigationDrawer } from './components/navigation/MobileNavigationDrawer';
+import { MotionEngineProvider } from './components/navigation/MotionEngineProvider';
+import { PageTransitionWrapper } from './components/navigation/PageTransitionWrapper';
+import { GlobalCommandPalette } from './components/navigation/GlobalCommandPalette';
+import { MegaMenuOverlay } from './components/navigation/MegaMenuOverlay';
+import { NavigationBreadcrumbs } from './components/navigation/NavigationBreadcrumbs';
+import { AccessibilitySettingsModal } from './components/navigation/AccessibilitySettingsModal';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'voice' | 'scanner' | 'queue' | 'assistant' | 'nurse' | 'directory'>('voice');
   const [currentLanguage, setCurrentLanguage] = useState<'kn' | 'hi' | 'en' | 'te' | 'ta'>('kn');
+
+  // URL Hash Synchronizer & Browser History Support
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      const validTabs: Array<'voice' | 'scanner' | 'queue' | 'assistant' | 'nurse' | 'directory'> = [
+        'voice', 'scanner', 'queue', 'assistant', 'nurse', 'directory'
+      ];
+      if (validTabs.includes(hash as any)) {
+        setActiveTab(hash as any);
+      }
+    };
+
+    // Initial check
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleTabChange = (newTab: 'voice' | 'scanner' | 'queue' | 'assistant' | 'nurse' | 'directory') => {
+    setActiveTab(newTab);
+    if (window.location.hash !== `#${newTab}`) {
+      window.history.replaceState(null, '', `#${newTab}`);
+    }
+  };
+
+  // Global Numeric Jump Hotkeys (1-6) when not focused on an input
+  React.useEffect(() => {
+    const handleGlobalShortcuts = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
+
+      if (e.key === '1') handleTabChange('voice');
+      else if (e.key === '2') handleTabChange('scanner');
+      else if (e.key === '3') handleTabChange('queue');
+      else if (e.key === '4') handleTabChange('assistant');
+      else if (e.key === '5') handleTabChange('nurse');
+      else if (e.key === '6') handleTabChange('directory');
+    };
+
+    window.addEventListener('keydown', handleGlobalShortcuts);
+    return () => window.removeEventListener('keydown', handleGlobalShortcuts);
+  }, []);
 
   const [departments, setDepartments] = useState<HospitalDepartment[]>(INITIAL_DEPARTMENTS);
   const [hospitalStats, setHospitalStats] = useState<HospitalLiveStats>(INITIAL_HOSPITAL_STATS);
@@ -217,218 +272,132 @@ export default function App() {
   };
 
   return (
-    <div id="janarogya-root-app" className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
-      {/* Top Header / Govt Banner */}
-      <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
-            {/* Logo & Identity */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shrink-0">
-                <HeartPulse className="w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
+    <MotionEngineProvider>
+      <div id="janarogya-root-app" className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+        {/* Universal Advanced Desktop & Tablet Navbar */}
+        <UniversalDesktopNavbar
+          currentLanguage={currentLanguage}
+          onLanguageChange={setCurrentLanguage}
+          activeTab={activeTab}
+          onTabChange={(tabId) => handleTabChange(tabId as any)}
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex flex-col">
+          {/* Dynamic Contextual Breadcrumbs */}
+          <NavigationBreadcrumbs
+            currentLanguage={currentLanguage}
+            activeTab={activeTab}
+            onTabChange={(tabId) => handleTabChange(tabId as any)}
+          />
+
+          <PageTransitionWrapper activeKey={activeTab}>
+            {activeTab === 'voice' && (
+              <VoiceKiosk
+                currentLanguage={currentLanguage}
+                onTokenGenerated={handleTokenGenerated}
+                onSendNotification={handleSendNotification}
+              />
+            )}
+
+            {activeTab === 'scanner' && (
+              <DocumentScanner
+                onTokenGeneratedFromDoc={handleTokenGenerated}
+              />
+            )}
+
+            {activeTab === 'queue' && (
+              <LiveQueueBoard
+                departments={departments}
+                stats={hospitalStats}
+                recentTokens={tokens}
+              />
+            )}
+
+            {activeTab === 'assistant' && (
+              <HospitalAssistant
+                notifications={notifications}
+                currentLanguage={currentLanguage}
+              />
+            )}
+
+            {activeTab === 'nurse' && (
+              <NurseStation
+                tokens={tokens}
+                onUpdateUrgency={handleUpdateUrgency}
+              />
+            )}
+
+            {activeTab === 'directory' && (
+              <HospitalFinderAndDispatch
+                currentLanguage={currentLanguage}
+              />
+            )}
+          </PageTransitionWrapper>
+        </main>
+
+        {/* Persistent Mobile Bottom Navigation Dock (<= md) */}
+        <MobileBottomBar
+          currentLanguage={currentLanguage}
+          activeTab={activeTab}
+          onTabChange={(tabId) => handleTabChange(tabId as any)}
+        />
+
+        {/* Responsive Slide-Out Mobile Navigation Sheet / Drawer */}
+        <MobileNavigationDrawer
+          currentLanguage={currentLanguage}
+          onLanguageChange={setCurrentLanguage}
+          activeTab={activeTab}
+          onTabChange={(tabId) => handleTabChange(tabId as any)}
+        />
+
+        {/* Global Command Palette (⌘K Spotlight) */}
+        <GlobalCommandPalette
+          currentLanguage={currentLanguage}
+          onLanguageChange={setCurrentLanguage}
+          activeTab={activeTab}
+          onTabChange={(tabId) => handleTabChange(tabId as any)}
+        />
+
+        {/* Mega Menu Directory Overlay */}
+        <MegaMenuOverlay
+          currentLanguage={currentLanguage}
+          onLanguageChange={setCurrentLanguage}
+          activeTab={activeTab}
+          onTabChange={(tabId) => handleTabChange(tabId as any)}
+        />
+
+        {/* Global Accessibility Settings Modal */}
+        <AccessibilitySettingsModal />
+
+        {/* Global Public Hospital Footer */}
+        <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 py-6 mt-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Building2 className="w-5 h-5 text-blue-400" />
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">
-                    ಜನಾರೋಗ್ಯ AI • ABDM Verified
-                  </span>
-                  <span className="hidden sm:inline-block px-2 py-0.2 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">
-                    Kiosk Online
-                  </span>
-                </div>
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white line-clamp-1">
-                  JanArogya AI: Autonomous Hospital Navigator
-                </h1>
-                <p className="text-[11px] text-slate-400 hidden sm:block">
-                  Victoria &amp; Bowring Hospital Public Medical Complex, Bengaluru
+                <p className="font-bold text-slate-200">
+                  Department of Health &amp; Family Welfare, Government of Karnataka
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  National Health Authority (NHA) • Ayushman Bharat Digital Mission (ABDM) Compliant
                 </p>
               </div>
             </div>
 
-            {/* Right Controls: Scheme Badge + Language Selector */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span className="text-slate-300">PM-JAY &amp; Arogya Karnataka ₹0</span>
-              </div>
-
-              {/* Language Selector Dropdown */}
-              <div className="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-700">
-                <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <select
-                  id="language-selector-select"
-                  value={currentLanguage}
-                  onChange={(e) => setCurrentLanguage(e.target.value as any)}
-                  className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer"
-                >
-                  <option value="kn" className="bg-slate-900 text-white">ಕನ್ನಡ (Kannada)</option>
-                  <option value="hi" className="bg-slate-900 text-white">हिंदी (Hindi)</option>
-                  <option value="en" className="bg-slate-900 text-white">English</option>
-                  <option value="te" className="bg-slate-900 text-white">తెలుగు (Telugu)</option>
-                  <option value="ta" className="bg-slate-900 text-white">தமிழ் (Tamil)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Tab Bar */}
-          <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2 border-t border-slate-800 scrollbar-none">
-            <button
-              id="tab-voice-kiosk"
-              onClick={() => setActiveTab('voice')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'voice'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Mic className="w-4 h-4" />
-              {currentLanguage === 'kn' ? 'ಧ್ವನಿ ಕಿಯೋಸ್ಕ್ (Voice Triage)' : currentLanguage === 'hi' ? 'ध्वनि कियोस्क (Voice)' : 'Patient Voice Kiosk'}
-            </button>
-
-            <button
-              id="tab-doc-scanner"
-              onClick={() => setActiveTab('scanner')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'scanner'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              {currentLanguage === 'kn' ? 'ದಾಖಲೆ ಸ್ಕ್ಯಾನರ್ (Prescription & ABHA)' : currentLanguage === 'hi' ? 'दस्तावेज़ स्कैनर (Rx & ABHA)' : 'Prescription & ABHA Vision'}
-            </button>
-
-            <button
-              id="tab-live-queue"
-              onClick={() => setActiveTab('queue')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'queue'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <MonitorPlay className="w-4 h-4" />
-              {currentLanguage === 'kn' ? 'ಲೈವ್ ಕ್ಯೂ & ಬೆಡ್ (Live Queue)' : 'Live OPD & Bed Monitor'}
-            </button>
-
-            <button
-              id="tab-hospital-assistant"
-              onClick={() => setActiveTab('assistant')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'assistant'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              {currentLanguage === 'kn' ? 'ಜನಾರೋಗ್ಯ ಮಿತ್ರ (Scheme AI)' : 'JanArogya Mitra & Alerts'}
-            </button>
-
-            <button
-              id="tab-nurse-station"
-              onClick={() => setActiveTab('nurse')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'nurse'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Stethoscope className="w-4 h-4" />
-              {currentLanguage === 'kn' ? 'ನರ್ಸ್ ಸ್ಟೇಷನ್ (Triage Audit)' : 'Nurse Triage Audit'}
-            </button>
-
-            <button
-              id="tab-hospital-directory"
-              onClick={() => setActiveTab('directory')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'directory'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-indigo-300 hover:text-white hover:bg-indigo-950/60'
-              }`}
-            >
-              <Building2 className="w-4 h-4 text-indigo-400" />
-              <span>{currentLanguage === 'kn' ? 'ಆಸ್ಪತ್ರೆಗಳ ಪಟ್ಟಿ & ಸ್ವಯಂಚಾಲಿತ ರವಾನೆ' : 'Hospital Network & Auto-Dispatch'}</span>
-              <span className="px-1.5 py-0.2 text-[10px] font-black bg-emerald-400 text-slate-950 rounded-full">
-                Voice/SMS/Email
+            <div className="flex items-center gap-4 text-[11px]">
+              <span className="flex items-center gap-1 text-emerald-400">
+                <Sparkles className="w-3.5 h-3.5" />
+                Powered by Google Gemini 3.7 Flash
               </span>
-            </button>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        {activeTab === 'voice' && (
-          <VoiceKiosk
-            currentLanguage={currentLanguage}
-            onTokenGenerated={handleTokenGenerated}
-            onSendNotification={handleSendNotification}
-          />
-        )}
-
-        {activeTab === 'scanner' && (
-          <DocumentScanner
-            onTokenGeneratedFromDoc={handleTokenGenerated}
-          />
-        )}
-
-        {activeTab === 'queue' && (
-          <LiveQueueBoard
-            departments={departments}
-            stats={hospitalStats}
-            recentTokens={tokens}
-          />
-        )}
-
-        {activeTab === 'assistant' && (
-          <HospitalAssistant
-            notifications={notifications}
-            currentLanguage={currentLanguage}
-          />
-        )}
-
-        {activeTab === 'nurse' && (
-          <NurseStation
-            tokens={tokens}
-            onUpdateUrgency={handleUpdateUrgency}
-          />
-        )}
-
-        {activeTab === 'directory' && (
-          <HospitalFinderAndDispatch
-            currentLanguage={currentLanguage}
-          />
-        )}
-      </main>
-
-      {/* Global Public Hospital Footer */}
-      <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Building2 className="w-5 h-5 text-blue-400" />
-            <div>
-              <p className="font-bold text-slate-200">
-                Department of Health &amp; Family Welfare, Government of Karnataka
-              </p>
-              <p className="text-[11px] text-slate-500">
-                National Health Authority (NHA) • Ayushman Bharat Digital Mission (ABDM) Compliant
-              </p>
+              <span className="text-slate-600">|</span>
+              <span>Emergency Ambulance: <strong className="text-white">108</strong></span>
+              <span className="text-slate-600">|</span>
+              <span>Blood Bank: <strong className="text-white">080-26701150</strong></span>
             </div>
           </div>
-
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 text-emerald-400">
-              <Sparkles className="w-3.5 h-3.5" />
-              Powered by Google Gemini 3.7 Flash
-            </span>
-            <span className="text-slate-600">|</span>
-            <span>Emergency Ambulance: <strong className="text-white">108</strong></span>
-            <span className="text-slate-600">|</span>
-            <span>Blood Bank: <strong className="text-white">080-26701150</strong></span>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </MotionEngineProvider>
   );
 }

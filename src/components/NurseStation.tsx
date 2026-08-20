@@ -13,9 +13,11 @@ import {
   Stethoscope,
   Heart,
   Thermometer,
-  Eye
+  Eye,
+  FileDown
 } from 'lucide-react';
 import { TriageResult, UrgencyLevel } from '../types';
+import { generatePatientSummaryPdf } from '../utils/generatePatientPdf';
 
 interface NurseStationProps {
   tokens: TriageResult[];
@@ -319,20 +321,30 @@ export const NurseStation: React.FC<NurseStationProps> = ({
               )}
 
               {/* Department Destination Callout */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Destination Clinic</span>
                   <span className="text-sm font-bold text-slate-900">{selectedToken.primaryDepartment}</span>
                   <p className="text-xs text-slate-600">{selectedToken.roomNumber} ({selectedToken.floorWing})</p>
                 </div>
 
-                <button
-                  onClick={() => window.print()}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print Token Slip
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    id="nurse-download-pdf-btn"
+                    onClick={() => generatePatientSummaryPdf(selectedToken)}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                  >
+                    <FileDown className="w-3.5 h-3.5 text-teal-400" />
+                    Download Summary PDF
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    Print
+                  </button>
+                </div>
               </div>
             </div>
           ) : (

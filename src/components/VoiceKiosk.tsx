@@ -17,10 +17,13 @@ import {
   Activity,
   ArrowRight,
   Flame,
-  Stethoscope
+  Stethoscope,
+  Download,
+  FileDown
 } from 'lucide-react';
 import { PatientInfo, TriageResult } from '../types';
 import { SAMPLE_VOICE_PROMPTS } from '../data/hospitalData';
+import { generatePatientSummaryPdf } from '../utils/generatePatientPdf';
 
 interface VoiceKioskProps {
   currentLanguage: 'kn' | 'hi' | 'en' | 'te' | 'ta';
@@ -567,8 +570,20 @@ export const VoiceKiosk: React.FC<VoiceKioskProps> = ({
                   <span>ABHA: <strong className="text-blue-700 font-mono">{triageResult.patientInfo.abhaId ? '✓ Linked' : 'Walk-in'}</strong></span>
                 </div>
 
-                {/* WhatsApp / SMS Dispatch simulation */}
+                {/* PDF Download and WhatsApp / SMS Dispatch Actions */}
                 <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    id="download-patient-summary-pdf-btn"
+                    onClick={() => {
+                      generatePatientSummaryPdf(triageResult);
+                      setDispatchSuccess('Official Patient Triage Summary PDF generated and downloaded!');
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-800"
+                  >
+                    <FileDown className="w-4 h-4 text-teal-400" />
+                    <span>Download Patient Summary (PDF)</span>
+                  </button>
+
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       id="send-whatsapp-button"

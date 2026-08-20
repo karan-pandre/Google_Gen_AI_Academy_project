@@ -1,6 +1,6 @@
 {
-  "name": "JanArogya AI - Hospital Patient Navigator",
-  "description": "Autonomous multimodal public hospital patient navigator featuring multilingual voice triage, prescription & ABHA card vision parsing, smart clinical routing, and real-time OPD queue management.",
-  "requestFramePermissions": ["microphone", "camera"],
+  "name": "Namma Water - Bengaluru Civic AI Platform",
+  "description": "Premium civic AI platform for Bengaluru water verification, tanker pricing intelligence, water quality benchmarking, 3D spatial network maps, and community pulse.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
