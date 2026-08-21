@@ -1,6 +1,6 @@
 {
-  "name": "Namma Water - Bengaluru Civic AI Platform",
-  "description": "Premium civic AI platform for Bengaluru water verification, tanker pricing intelligence, water quality benchmarking, 3D spatial network maps, and community pulse.",
+  "name": "Namma Bengaluru Civic & Healthcare AI Suite (JanArogya & Namma Water)",
+  "description": "Unified autonomous AI agents portal for Bengaluru: JanArogya AI (Hospital Triage, Prescription OCR & Queue Navigator) and Namma Water AI (Tanker Verification, 3D Aquifer Radar & Statutory Price Intelligence).",
   "requestFramePermissions": ["camera", "microphone", "geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -198,5 +198,24 @@ export interface AutomatedTransmissionLog {
   };
 }
 
+export interface AcademyModule {
+  id: string;
+  moduleNumber: number;
+  title: string;
+  category: string;
+  durationMinutes: number;
+  progressPercent: number;
+  status: 'Completed' | 'In Progress' | 'Upcoming';
+  xpPoints: number;
+  skills: string[];
+  submissionDeadline?: string;
+  checklistItems: {
+    id: string;
+    text: string;
+    completed: boolean;
+  }[];
+}
+
 export * from './types/nammaWater';
+
 
